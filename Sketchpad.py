@@ -9,10 +9,11 @@ class Sketchpad(Canvas):
         self.screen_h = screen_h
         self.origin_x = screen_w / 2
         self.origin_y = screen_h / 2
-        self.oribt_obj = None
-        self.cur_x = None
-        self.cur_y = None
+        self.orbit_obj = None
+        self.degree = 90
+        self.obj_len = 200
         self.draw()
+        self.rotate()
 
     def screen_coord(self, x, y):
         return self.origin_x + x, self.origin_y - y
@@ -25,24 +26,26 @@ class Sketchpad(Canvas):
         self.create_oval(x + center_w, y + center_w, x - center_w, y - center_w, fill="orange")
 
 
-        x, y = self.screen_coord(0, 200)
+        x, y = self.screen_coord(0, self.obj_len)
         orbit_w = 8
-        self.oribt_obj = self.create_oval(x + orbit_w, y + orbit_w, x - orbit_w, y - orbit_w, fill = "blue")
+        self.orbit_obj = self.create_oval(x + orbit_w, y + orbit_w, x - orbit_w, y - orbit_w, fill = "blue")
 
-        self.cur_x = 0
-        self.cur_y = 200
 
-    def rotate(self, prev_degree):
-        prev_x = self.cur_x
-        prev_y = self.cur_y
-        degree = prev_degree % 360
-        rad = math.radians(degree)
+    def rotate(self):
+        print("rotating..." + str(self.degree))
 
-        next_x = prev_x + prev_x*math.cos(rad)
-        next_y = prev_y + prev_y*math.sin(rad)
+        self.degree = self.degree % 360
+        rad = math.radians(self.degree)
 
-        self.delete(self.oribt_obj)
-        self.oribt_obj = self.create_oval(prev_x + next_x, prev_y + next_y, prev_x - next_x, prev_y - next_y, fill = "blue")
+        x = self.obj_len*math.cos(rad)
+        y = self.obj_len*math.sin(rad)
 
-        self.cur_x = next_x
-        self.cur_y = next_y
+        x, y = self.screen_coord(x,y)
+
+        print("next location (" + str(x) + "," + str(y) + ")")
+
+        self.delete(self.orbit_obj)
+        self.orbit_obj = self.create_oval(x + 8, y + 8, x - 8, y - 8, fill = "blue")
+
+        self.degree += 1
+        self.after(100, self.rotate)
